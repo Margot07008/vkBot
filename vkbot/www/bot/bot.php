@@ -1,6 +1,15 @@
 <?php
 
 
+function bot_userIsAssign($user_id)
+{
+    $users_get_response = vkApi_usersGet($user_id);
+//    $user = array_pop($users_get_response);
+
+    $result = mysqli_query( $GLOBALS["mysql"], "SELECT `id` FROM `users` WHERE ( `user_id` = '{$user_id}' )" );
+    return mysqli_num_rows( $result ) ? true : false;
+}
+
 function bot_sendMessageAssing($user_id) {
     $users_get_response = vkApi_usersGet($user_id);
     $user = array_pop($users_get_response);
@@ -21,7 +30,7 @@ function bot_sendMessageAssing($user_id) {
     }
 
     vkApi_messagesSend($user_id, $msg);
-
+//    return mysqli_num_rows( $result ) ? true : false;
 }
 
 function bot_sendMessageUnsubscribe($user_id) {
@@ -45,4 +54,6 @@ function bot_sendMessageUnsubscribe($user_id) {
     vkApi_messagesSend($user_id, $msg);
 
 }
+
+
 

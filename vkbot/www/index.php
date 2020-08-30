@@ -7,8 +7,16 @@ require_once 'config.php';
 require_once 'bot/bot.php';
 require_once 'api/vk_api.php';
 
+require_once 'bot/sendOnePred.php';
+
 require_once '../connect.php';
 
+const BTN_ONE_PRED = [["command"=>'newOne'], "🥠 Разломать печеньку", "blue"];
+const BTN_YES = [["command"=>'yes'], "Да", "green"];
+const BTN_NO = [["command"=>'no'], "Нет", "red"];
+const BTN_DEL = [["command"=>'del'], "Скрыть", "white"];
+const BTN_SUB = [["command"=>'sub'], "Подписаться", "green"];
+const BTN_UNSUB = [["command"=>'unsub'], "Отписаться", "red"];
 
 if (!isset($_REQUEST)) {
     exit;
@@ -52,16 +60,65 @@ function _callback_handleConfirmation() {
 }
 
 function _callback_handleMessageNew($data) {
-    if (mb_strtolower($data['body']) == "подписаться")
+
+
+
+    if (mb_strtolower($data['text']) == 'начать')
     {
-        $user_id = $data['user_id'];
-        bot_sendMessageAssing($user_id);
+        sendButton($data['peer_id'], "Хочешь новое предсказание?", [[BTN_ONE_PRED]]);
     }
-    else if (mb_strtolower($data['body']) == "отписаться")
+    else if (mb_strtolower($data['text']) == 'скрыть')
     {
-        $user_id = $data['user_id'];
-        bot_sendMessageUnsubscribe($user_id);
+        sendButton($data['peer_id'], "напиши начать", [[]]);
     }
+
+    if (bot_userIsAssign($data['peer_id']))
+    {
+        sendButton($data['peer_id'], "",[BTN_ONE_PRED, BTN_UNSUB]);
+    }
+    else
+    {
+        sendButton($data['peer_id'],"", [BTN_ONE_PRED, BTN_SUB]);
+    }
+
+
+
+    if (isset($data["payload"])) {  //получаем payload
+        $payload = json_decode($data["payload"], True); // Декодируем в JSON формат
+    } else {
+        $payload = null; // Иначе кнопок нет
+    }
+
+    $payload = $payload['command'];
+
+    if ($payload == 'newOne')
+    {
+        vkApi_messagesSend($data['peer_id'], "Разламываю печеньку...");
+        bot_sendMessageOnePrediction($data['peer_id']);
+        sendButton($data['peer_id'], "Хочешь получать такие каждый день?", [[BTN_YES], [BTN_NO]]);
+    }
+    else if ($payload == 'yes')
+    {
+        bot_sendMessageAssing($data['peer_id']);
+        sendButton($data['peer_id'], "Хочешь новое предсказание?", [[BTN_ONE_PRED]]);
+    }
+    else if ($payload == 'no')
+    {
+        bot_sendMessageUnsubscribe($data['peer_id']);
+        sendButton($data['peer_id'], "Хочешь новое предсказание?", [[BTN_ONE_PRED]]);
+    }
+
+//    if (mb_strtolower($data['text']) == "подписаться")
+//    {
+//        $user_id = $data['peer_id'];
+//        bot_sendMessageAssing($user_id);
+//    }
+//    else if (mb_strtolower($data['text']) == "отписаться")
+//    {
+//        $user_id = $data['peer_id'];
+//        bot_sendMessageUnsubscribe($user_id);
+//    }
+
     _callback_okResponse();
 }
 
@@ -73,3 +130,7 @@ function _callback_response($data) {
     echo $data;
     exit();
 }
+
+
+
+

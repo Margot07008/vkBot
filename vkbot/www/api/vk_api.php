@@ -1,7 +1,9 @@
 <?php
 
-define('VK_API_VERSION', '5.50'); //Используемая версия API
+define('VK_API_VERSION', '5.81'); //Используемая версия API
 define('VK_API_ENDPOINT', 'https://api.vk.com/method/');
+
+
 
 
 function vkApi_messagesSend($peer_id, $message) {
@@ -78,4 +80,59 @@ function vkApi_upload($url, $file_name) {
     }
 
     return $response;
+}
+
+function sendButton($id, $message, $gl_massiv=[], $inline = false, $one_time = true, $params = [])
+{
+    $buttons = [];
+    $i = 0;
+    foreach ($gl_massiv  as $button_str) {
+        $j = 0;
+        foreach ($button_str as $button) {
+            $color = replaceColor($button[2]);
+            $buttons[$i][$j]["action"]["type"] = "text";
+            if ($button[0] != null)
+                $buttons[$i][$j]["action"]["payload"] = json_encode($button[0], JSON_UNESCAPED_UNICODE);
+            $buttons[$i][$j]["action"]["label"] = $button[1];
+            $buttons[$i][$j]["color"] = $color;
+            $j++;
+        }
+        $i++;
+    }
+    $buttons = array(
+        "buttons" => $buttons,
+        "one_time" => $one_time);
+    $buttons = json_encode($buttons, JSON_UNESCAPED_UNICODE);
+
+    return vkApi_messagesSendKeyboard($id, $message, $buttons);
+}
+
+function replaceColor($color) {
+    switch ($color) {
+        case 'red':
+            $color = 'negative';
+            break;
+        case 'green':
+            $color = 'positive';
+            break;
+        case 'white':
+            $color = 'default';
+            break;
+        case 'blue':
+            $color = 'primary';
+            break;
+
+        default:
+            # code...
+            break;
+    }
+    return $color;
+}
+
+function vkApi_messagesSendKeyboard($peer_id, $message, $keyboard) {
+    return _vkApi_call('messages.send', array(
+        'peer_id'    => $peer_id,
+        'message'    => $message,
+        'keyboard'   => $keyboard,
+    ));
 }

@@ -1,7 +1,7 @@
 <?php
 
 
-function createImagePrediction($text)
+function createImagePrediction($text, $relPath)
 {
     $t_r = mt_rand(1,255);
     $t_g = mt_rand(1,255);
@@ -15,11 +15,11 @@ function createImagePrediction($text)
     $canvasHeight = 1800;
 
     $num_rand = mt_rand(1,5);
-    $img = "../../static/".$num_rand.".png";
+    $img = $relPath."static/".$num_rand.".png";
     $CENTER = $canvasWidth/2;
 
     $font_size = 70;
-    $font = '../../static/font.ttf';
+    $font = $relPath.'static/font.ttf';
 
     $width = $canvasWidth;
     $margin = 1;
@@ -35,8 +35,8 @@ function createImagePrediction($text)
     $name2 = base_convert(mt_rand(), 10, 36);
 
 
-    $tmpImgSave = "../../static/tmp_img/" . strtolower($name . $name2) . ".png";
-	$save = "../../static/img_save/" . strtolower($name . $name2) . ".png";
+    $tmpImgSave = $relPath."static/tmp_img/" . strtolower($name . $name2) . ".png";
+	$save = $relPath."static/img_save/" . strtolower($name . $name2) . ".png";
 
 
     imageFilledRectangle($canvas, 0, 0, $canvasWidth - 1, $canvasHeight - 1, $color_Bg);
@@ -181,7 +181,7 @@ function createImagePrediction($text)
 
 
     header("Content-type: image/png");
-    imagepng($tmp);
+//    imagepng($tmp);
     imagepng($tmp, $save);
 
     imagedestroy($tmp);

@@ -5,6 +5,8 @@ require_once '../api/vk_api.php';
 require_once '../../connect.php';
 require_once 'createImage.php';
 
+
+
 if (!isset($_REQUEST)) {
     exit;
 }
@@ -25,7 +27,7 @@ function bot_sendMessagePrediction()
         $prediction = mysqli_query($GLOBALS["mysql"], $sql);
 
         $pred = mysqli_fetch_array($prediction);
-        $photoURL = createImagePrediction($pred['body']);
+        $photoURL = createImagePrediction($pred['body'], "../../");
 
         $photo = _bot_uploadPhoto($user['id'], $photoURL);
 
@@ -54,3 +56,4 @@ function _bot_uploadPhoto($user_id, $file_name) {
 
     return $photo;
 }
+
